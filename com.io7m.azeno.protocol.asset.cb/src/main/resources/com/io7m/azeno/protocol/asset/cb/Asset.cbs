@@ -1,0 +1,214 @@
+;
+; Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
+;
+; Permission to use, copy, modify, and/or distribute this software for any
+; purpose with or without fee is hereby granted, provided that the above
+; copyright notice and this permission notice appear in all copies.
+;
+; THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+; WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+; MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+; SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+; WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+; ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+; IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+;
+
+[language cedarbridge 1 0]
+
+[package com.io7m.azeno.protocol.asset.cb]
+
+[import com.io7m.cedarbridge cb]
+[import com.io7m.cedarbridge.time ct]
+
+[documentation AzA1Page "A page of search results."]
+[record AzA1Page
+  [parameter T]
+  [field items [cb:List T]]
+  [field pageIndex cb:IntegerUnsigned32]
+  [field pageCount cb:IntegerUnsigned32]
+  [field pageFirstOffset cb:IntegerUnsigned64]
+]
+
+[variant AzA1ComparisonExact
+  [parameter T]
+  [case Anything]
+  [case IsEqualTo    [field value T]]
+  [case IsNotEqualTo [field value T]]
+]
+
+[documentation AzA1AuditSearchParameters "The audit search parameters."]
+[record AzA1AuditSearchParameters
+  [documentation owner "Limit to events with the given owner."]
+  [field owner [cb:Option cb:UUID]]
+  [documentation type "Limit to events with the given type."]
+  [field type [AzA1ComparisonExact cb:String]]
+  [documentation timeRange "Limit to events in the given time range."]
+  [field timeRange AzA1TimeRange]
+  [documentation pageSize "The page size."]
+  [field pageSize cb:IntegerUnsigned32]
+]
+
+[documentation AzA1AuditEvent "An audit event."]
+[record AzA1AuditEvent
+  [documentation id "The event ID."]
+  [field id cb:IntegerUnsigned64]
+  [documentation time "The event time."]
+  [field time ct:OffsetDateTime]
+  [documentation owner "The event owner."]
+  [field owner cb:UUID]
+  [documentation type "The event type."]
+  [field type cb:String]
+  [documentation data "The event data."]
+  [field data [cb:Map cb:String cb:String]]
+]
+
+[documentation AzA1Error "An error response."]
+[record AzA1Error
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation message "The error message."]
+  [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "The remediating action, if any."]
+  [field remediatingAction [cb:Option cb:String]]
+]
+
+[documentation AzA1TimeRange "An inclusive time range."]
+[record AzA1TimeRange
+  [field timeLower ct:OffsetDateTime]
+  [field timeUpper ct:OffsetDateTime]
+]
+
+;
+; Commands.
+;
+
+[documentation AzA1CommandLogin "A request to log in."]
+[record AzA1CommandLogin
+  [documentation userName "The username."]
+  [field userName cb:String]
+  [documentation password "The password."]
+  [field password cb:String]
+  [documentation metadata "Extra metadata included with the login request."]
+  [field metadata [cb:Map cb:String cb:String]]
+]
+
+[documentation AzA1CommandAuditSearchBegin "Start searching audit events."]
+[record AzA1CommandAuditSearchBegin
+  [documentation parameters "The search parameters."]
+  [field parameters AzA1AuditSearchParameters]
+]
+
+[documentation AzA1CommandAuditSearchNext "Continue searching audit events."]
+[record AzA1CommandAuditSearchNext]
+
+[documentation AzA1CommandAuditSearchPrevious "Continue searching audit events."]
+[record AzA1CommandAuditSearchPrevious]
+
+[documentation AzA1CommandRolesAssign "Assign a set of roles to a user."]
+[record AzA1CommandRolesAssign
+  [documentation user "The target user."]
+  [field user cb:UUID]
+  [documentation roles "The assigned roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation AzA1CommandRolesRevoke "Revoke a set of roles from a user."]
+[record AzA1CommandRolesRevoke
+  [documentation user "The target user."]
+  [field user cb:UUID]
+  [documentation roles "The roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation AzA1CommandRolesGet "Get the roles for a user."]
+[record AzA1CommandRolesGet
+  [documentation user "The target user."]
+  [field user cb:UUID]
+]
+
+;
+; Responses.
+;
+
+[documentation AzA1ResponseBlame "A blame assignment."]
+[variant AzA1ResponseBlame
+  [documentation BlameClient "The client sent a bad response."]
+  [case BlameClient]
+  [documentation BlameServer "Something went wrong on the server."]
+  [case BlameServer]
+]
+
+[documentation AzA1ResponseError "An error response."]
+[record AzA1ResponseError
+  [documentation requestId "The ID of the request that yielded this response."]
+  [field requestId cb:UUID]
+  [documentation errorCode "The error code."]
+  [field errorCode cb:String]
+  [documentation message "The error message."]
+  [field message cb:String]
+  [documentation attributes "The error attributes."]
+  [field attributes [cb:Map cb:String cb:String]]
+  [documentation remediatingAction "The remediating action, if any."]
+  [field remediatingAction [cb:Option cb:String]]
+  [documentation blame "The blame assignment."]
+  [field blame AzA1ResponseBlame]
+  [documentation extras "The extra errors."]
+  [field extras [cb:List AzA1Error]]
+]
+
+[documentation AzA1ResponseLogin "A response to AzA1CommandLogin."]
+[record AzA1ResponseLogin
+  [documentation requestId "The ID of the request that yielded this response."]
+  [field requestId cb:UUID]
+  [documentation userId "The ID of the user that logged in."]
+  [field userId cb:UUID]
+]
+
+[documentation AzA1ResponseAuditSearch "A response to AzA1CommandAuditSearchBegin."]
+[record AzA1ResponseAuditSearch
+  [documentation requestId "The ID of the request that yielded this response."]
+  [field requestId cb:UUID]
+  [documentation results "The results"]
+  [field results [AzA1Page AzA1AuditEvent]]
+]
+
+[documentation AzA1ResponseRolesGet "A response to AzA1ResponseRolesGet."]
+[record AzA1ResponseRolesGet
+  [documentation requestId "The ID of the request that yielded this response."]
+  [field requestId cb:UUID]
+  [documentation roles "The roles."]
+  [field roles [cb:List cb:String]]
+]
+
+[documentation AzA1ResponseOK "An affirmative response."]
+[record AzA1ResponseOK
+  [documentation requestId "The ID of the request that yielded this response."]
+  [field requestId cb:UUID]
+]
+
+;
+; Protocol.
+;
+
+[documentation AzA "The digital asset protocol."]
+[protocol AzA
+  [version 1
+    [types-added
+      AzA1CommandAuditSearchBegin
+      AzA1CommandAuditSearchNext
+      AzA1CommandAuditSearchPrevious
+      AzA1CommandLogin
+      AzA1CommandRolesAssign
+      AzA1CommandRolesGet
+      AzA1CommandRolesRevoke
+      AzA1ResponseAuditSearch
+      AzA1ResponseError
+      AzA1ResponseLogin
+      AzA1ResponseOK
+      AzA1ResponseRolesGet
+    ]
+  ]
+]

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="urn:com.io7m.azeno:schema:1"
+            xmlns:a="urn:com.io7m.azeno:schema:1">
+
+  <xsd:simpleType name="SchemaName">
+    <xsd:annotation>
+      <xsd:documentation>
+        A schema name uniquely identifies a schema.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="FieldName">
+    <xsd:annotation>
+      <xsd:documentation>
+        A field name uniquely identifies a field. Fields starting with the string "azeno." are reserved for use by the
+        system, as is the field name "id".
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="LanguageCode">
+    <xsd:annotation>
+      <xsd:documentation>
+        An ISO 639-3 language code.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[a-z]{3}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="FieldType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        A field type describes the set of values that may be assigned to a field.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:attribute name="Name"
+                   type="a:FieldName"
+                   use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The unique name of the field.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+
+    <xsd:attribute name="MultiValued"
+                   type="xsd:boolean"
+                   default="false"
+                   use="optional">
+      <xsd:annotation>
+        <xsd:documentation>
+          Whether the field is multi-valued. A field that is multi-valued can be provided multiple times in an input
+          document.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+
+  </xsd:complexType>
+
+  <xsd:complexType name="FieldBooleanType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept boolean values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldBoolean"
+               type="a:FieldBooleanType"/>
+
+  <xsd:complexType name="FieldFloatingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept real values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldFloating"
+               type="a:FieldFloatingType"/>
+
+  <xsd:complexType name="FieldIntegerType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept integer values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldInteger"
+               type="a:FieldIntegerType"/>
+
+  <xsd:complexType name="FieldTextType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept text values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="FieldStringLocalType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept localized text values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldTextType">
+        <xsd:attribute name="Language"
+                       type="a:LanguageCode"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldStringLocal"
+               type="a:FieldStringLocalType"/>
+
+  <xsd:complexType name="FieldStringUninterpretedType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept uninterpreted string values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldTextType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldStringUninterpreted"
+               type="a:FieldStringUninterpretedType"/>
+
+  <xsd:complexType name="FieldTimestampType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept timestamp values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldTimestamp"
+               type="a:FieldTimestampType"/>
+
+  <xsd:complexType name="FieldURIType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept URI values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldURI"
+               type="a:FieldURIType"/>
+
+  <xsd:complexType name="FieldUUIDType">
+    <xsd:annotation>
+      <xsd:documentation>
+        The type of fields that accept UUID values.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:FieldType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FieldUUID"
+               type="a:FieldUUIDType"/>
+
+  <xsd:group name="FieldGroup">
+    <xsd:annotation>
+      <xsd:documentation>
+        The group of elements that represent field types.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:choice>
+      <xsd:element ref="a:FieldBoolean"/>
+      <xsd:element ref="a:FieldFloating"/>
+      <xsd:element ref="a:FieldInteger"/>
+      <xsd:element ref="a:FieldStringLocal"/>
+      <xsd:element ref="a:FieldStringUninterpreted"/>
+      <xsd:element ref="a:FieldTimestamp"/>
+      <xsd:element ref="a:FieldURI"/>
+      <xsd:element ref="a:FieldUUID"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:element name="Schema">
+    <xsd:annotation>
+      <xsd:documentation>
+        A schema defines the types of fields usable in a collection.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:group ref="a:FieldGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="Name"
+                     type="a:SchemaName"
+                     use="required"/>
+      <xsd:attribute name="Version"
+                     type="xsd:unsignedInt"
+                     use="required"/>
+    </xsd:complexType>
+
+    <xsd:key name="SchemaFieldKey">
+      <xsd:selector xpath="*"/>
+      <xsd:field xpath="@Name"/>
+    </xsd:key>
+  </xsd:element>
+
+</xsd:schema>

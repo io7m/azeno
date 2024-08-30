@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>com.io7m.azeno</artifactId>
+    <groupId>com.io7m.azeno</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>com.io7m.azeno.protocol.asset.cb</artifactId>
+
+  <packaging>jar</packaging>
+  <name>com.io7m.azeno.protocol.asset.cb</name>
+  <description>Digital asset system (Digital asset protocol [Cedarbridge encoding])</description>
+  <url>https://www.io7m.com/software/azeno</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.azeno.protocol.asset</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.azeno.protocol.api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.azeno.model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.azeno.error_codes</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.io7m.lanark</groupId>
+      <artifactId>com.io7m.lanark.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.idstore</groupId>
+      <artifactId>com.io7m.idstore.model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.repetoir</groupId>
+      <artifactId>com.io7m.repetoir.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.bssio</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.time</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.cedarbridge</groupId>
+      <artifactId>com.io7m.cedarbridge.runtime.convenience</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jbssio</groupId>
+      <artifactId>com.io7m.jbssio.vanilla</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jbssio</groupId>
+      <artifactId>com.io7m.jbssio.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.medrina</groupId>
+      <artifactId>com.io7m.medrina.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.seltzer</groupId>
+      <artifactId>com.io7m.seltzer.api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.bundle</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Generate Cedarbridge kind. -->
+      <plugin>
+        <groupId>com.io7m.cedarbridge</groupId>
+        <artifactId>com.io7m.cedarbridge.maven_plugin</artifactId>
+        <version>${com.io7m.cedarbridge.version}</version>
+        <executions>
+          <execution>
+            <id>generate-cedarbridge-code</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/generated-sources/cedarbridge</outputDirectory>
+              <languageName>Java 17+</languageName>
+              <files>
+                <file>${project.basedir}/src/main/resources/com/io7m/azeno/protocol/asset/cb/Asset.cbs</file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-cedarbridge</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/cedarbridge</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

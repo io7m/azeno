@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.0//EN"
+  "https://checkstyle.org/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+
+  <!-- Very long class name. -->
+  <suppress files="AzJv1Mappers.java"
+            checks="LineLength"/>
+
+  <!-- Static method. -->
+  <suppress files="AzA1HandlerLogin.java"
+            checks="ParameterNumber"/>
+
+  <!-- IDE fixes these. -->
+  <suppress files=".*"
+            checks="RedundantModifier"/>
+
+  <!-- bytes -> String -->
+  <suppress files="AzA1ValueString.java"
+            checks="IllegalInstantiation"/>
+  <suppress files="AzSchemaPut.java"
+            checks="IllegalInstantiation"/>
+  <suppress files="AzAssetPut.java"
+            checks="IllegalInstantiation"/>
+
+</suppressions>

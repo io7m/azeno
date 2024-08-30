@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:a="urn:com.io7m.azeno:asset:1"
+            targetNamespace="urn:com.io7m.azeno:asset:1">
+
+  <xsd:simpleType name="HashValueType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        A hash value.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[a-f0-9]{1,}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="UUIDType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        A UUID value.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="ValueName">
+    <xsd:annotation>
+      <xsd:documentation>
+        A value name uniquely identifies a value. Values starting with the string "azeno." are reserved for use by the
+        system, as is the value name "id".
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="LanguageCode">
+    <xsd:annotation>
+      <xsd:documentation>
+        An ISO 639-3 language code.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="(a-z){3}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="ValueType"
+                   abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        A value statement provides a value for a field.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:attribute name="Name"
+                   type="a:ValueName"
+                   use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          The unique name of the field.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="ValueBooleanType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A boolean value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       type="xsd:boolean"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueBoolean"
+               type="a:ValueBooleanType"/>
+
+  <xsd:complexType name="ValueFloatingType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A real value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       type="xsd:double"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueFloating"
+               type="a:ValueFloatingType"/>
+
+  <xsd:complexType name="ValueIntegerType">
+    <xsd:annotation>
+      <xsd:documentation>
+        An integer value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       type="xsd:integer"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueInteger"
+               type="a:ValueIntegerType"/>
+
+  <xsd:complexType name="ValueStringType">
+    <xsd:annotation>
+      <xsd:documentation>
+        An integer value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent mixed="true">
+      <xsd:extension base="a:ValueType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueString"
+               type="a:ValueStringType"/>
+
+  <xsd:complexType name="ValueTimestampType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A timestamp value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       type="xsd:dateTime"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueTimestamp"
+               type="a:ValueTimestampType"/>
+
+  <xsd:complexType name="ValueURIType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A URI value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       type="xsd:anyURI"
+                       use="required"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueURI"
+               type="a:ValueURIType"/>
+
+  <xsd:complexType name="ValueUUIDType">
+    <xsd:annotation>
+      <xsd:documentation>
+        A UUID value.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexContent>
+      <xsd:extension base="a:ValueType">
+        <xsd:attribute name="Value"
+                       use="required"
+                       type="a:UUIDType"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="ValueUUID"
+               type="a:ValueUUIDType"/>
+
+  <xsd:group name="ValueGroup">
+    <xsd:annotation>
+      <xsd:documentation>
+        The group of elements that represent field types.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:choice>
+      <xsd:element ref="a:ValueBoolean"/>
+      <xsd:element ref="a:ValueFloating"/>
+      <xsd:element ref="a:ValueInteger"/>
+      <xsd:element ref="a:ValueString"/>
+      <xsd:element ref="a:ValueTimestamp"/>
+      <xsd:element ref="a:ValueURI"/>
+      <xsd:element ref="a:ValueUUID"/>
+    </xsd:choice>
+  </xsd:group>
+
+  <xsd:element name="Asset">
+    <xsd:annotation>
+      <xsd:documentation>
+        A description of an asset.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0"
+                    maxOccurs="unbounded">
+        <xsd:group ref="a:ValueGroup"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="HashAlgorithm"
+                     type="xsd:string"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The hash algorithm used to calculate the hash of the content of the asset.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="HashValue"
+                     type="a:HashValueType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The hash of the content of the asset.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="ID"
+                     type="a:UUIDType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The unique ID of this asset.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="Collection"
+                     type="a:UUIDType"
+                     use="required">
+        <xsd:annotation>
+          <xsd:documentation>
+            The collection to which this asset belongs.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Assets">
+    <xsd:annotation>
+      <xsd:documentation>
+        A description of a set of assets.
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:element ref="a:Asset"/>
+      </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:key name="AssetIDKey">
+      <xsd:selector xpath="a:Asset"/>
+      <xsd:field xpath="@ID"/>
+    </xsd:key>
+  </xsd:element>
+
+</xsd:schema>

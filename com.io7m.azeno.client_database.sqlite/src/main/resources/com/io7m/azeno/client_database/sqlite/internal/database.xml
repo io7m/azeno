@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Schemas xmlns="urn:com.io7m.trasco.database.statements:1:0">
+
+  <Schema versionCurrent="0">
+    <Comment>
+      The schema version table stores the current version of the database schema. Implementations are expected to query
+      this table on connecting to the database in order to ensure that the calling code is compatible with the tables in
+      the database.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE schema_version (
+  version_lock            INTEGER NOT NULL DEFAULT 1,
+  version_application_id  TEXT    NOT NULL,
+  version_number          INTEGER NOT NULL,
+
+  CONSTRAINT check_lock_primary
+    PRIMARY KEY (version_lock),
+
+  CONSTRAINT check_lock_locked
+    CHECK (version_lock = 1)
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+  </Schema>
+
+  <Schema versionCurrent="1">
+    <Comment>
+      The bookmarks table stores the client-side server bookmarks.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE bookmarks (
+  bookmark_id       INTEGER NOT NULL,
+  bookmark_name     TEXT    NOT NULL,
+  bookmark_host     TEXT    NOT NULL,
+  bookmark_port     INTEGER NOT NULL,
+  bookmark_tls      INTEGER NOT NULL,
+  bookmark_user     TEXT    NOT NULL,
+  bookmark_password TEXT    NOT NULL,
+
+-- [jooq ignore start]
+  CONSTRAINT bookmarks_name_unique
+    UNIQUE (bookmark_name),
+-- [jooq ignore stop]
+
+  CONSTRAINT bookmarks_primary_key
+    PRIMARY KEY (bookmark_id)
+)
+-- [jooq ignore start]
+STRICT
+-- [jooq ignore stop]
+]]></Statement>
+  </Schema>
+
+</Schemas>

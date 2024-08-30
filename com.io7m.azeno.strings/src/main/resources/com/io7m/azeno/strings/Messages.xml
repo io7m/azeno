@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+  <entry key="error_close_connection">Failed to close a database connection: {0}.</entry>
+  <entry key="error_command_not_here">This command cannot be executed on this endpoint.</entry>
+  <entry key="error_connection_commit">Failed to commit a transaction on a database connection: {0}.</entry>
+  <entry key="error_connection_rollback">Failed to roll back a transaction on a database connection: {0}.</entry>
+  <entry key="error_create_queries">Failed to create database queries: {0}.</entry>
+  <entry key="error_create_queries_unavailable">No supported database queries of the given type.</entry>
+  <entry key="error_duplicate">Object already exists.</entry>
+  <entry key="error_duplicate_user">User already exists.</entry>
+  <entry key="error_duplicate_deleted">A previously deleted object exists with this ID.</entry>
+  <entry key="error_expected_command">Expected a command.</entry>
+  <entry key="error_hash_value_mismatch">Hash value did not match.</entry>
+  <entry key="error_http">HTTP server returned an error: {0}</entry>
+  <entry key="error_indexed">Error[{0}]</entry>
+  <entry key="error_indexed_attribute">Error[{0}] {1}</entry>
+  <entry key="error_io">I/O operation failed.</entry>
+  <entry key="error_nonexistent">Object does not exist.</entry>
+  <entry key="error_not_logged_in">Not logged in!</entry>
+  <entry key="error_open_connection">Failed to open a database connection: {0}.</entry>
+  <entry key="error_open_database">Failed to open the database: {0}.</entry>
+  <entry key="error_operation_not_permitted">Operation not permitted.</entry>
+  <entry key="error_parse">Parse error.</entry>
+  <entry key="error_received_unexpected_content_type">Received an unexpected content type.</entry>
+  <entry key="error_received_unexpected_response_type">Received an unexpected response type.</entry>
+  <entry key="error_request_too_large">A request of size {0} exceeds the configured server limits.</entry>
+  <entry key="error_schema_version_table_row">Schema version table '{0}' must contain exactly one row</entry>
+  <entry key="error_search_not_active">No search is currently active.</entry>
+  <entry key="error_server">Received an error from the server.</entry>
+  <entry key="error_server_connect">Could not connect to server.</entry>
+  <entry key="error_shell_options_combination">The options {0} cannot be used in combination.</entry>
+  <entry key="error_unauthorized">Unauthorized.</entry>
+  <entry key="error_unexpected_content_type">Received an unexpected content type.</entry>
+  <entry key="error_unexpected_response_type">Received an unexpected response type.</entry>
+  <entry key="error_parse_indexed">Parse error {0}</entry>
+  <entry key="error_type_indexed">Type error {0}</entry>
+  <entry key="error_expected_command_type">Expected a command type.</entry>
+  <entry key="error_closed_channel">Channel is closed.</entry>
+
+  <entry key="error_collection_already_exists">Collection already exists.</entry>
+  <entry key="error_nonexistent_store">Store does not exist.</entry>
+  <entry key="error_nonexistent_collection">Collection does not exist.</entry>
+  <entry key="error_nonexistent_user">User does not exist.</entry>
+
+  <entry key="error_schema_already_exists">Schema already exists.</entry>
+
+  <entry key="message_type">Message Type</entry>
+  <entry key="Command">Command</entry>
+  <entry key="Expected Content Type">Expected Content Type</entry>
+  <entry key="Expected Hash">Expected Hash</entry>
+  <entry key="Expected Response Type">Expected Response Type</entry>
+  <entry key="HTTP Response Code">HTTP Response Code</entry>
+  <entry key="Hash Algorithm">Hash Algorithm</entry>
+  <entry key="Received Content Type">Received Content Type</entry>
+  <entry key="Received Hash">Received Hash</entry>
+  <entry key="Received Response Type">Received Response Type</entry>
+  <entry key="URI">URI</entry>
+  <entry key="attachment">Attachment</entry>
+  <entry key="attempted_removal">Attempted Removal</entry>
+  <entry key="count">Count</entry>
+  <entry key="count_expected">Count Expected</entry>
+  <entry key="count_received">Count Received</entry>
+  <entry key="expected_command">Expected a command.</entry>
+  <entry key="expected_content_type">Expected Content Type</entry>
+  <entry key="expected_count">Expected Count</entry>
+  <entry key="expected_type">Expected Type</entry>
+  <entry key="name">Name</entry>
+  <entry key="name_base">Base Name</entry>
+  <entry key="object">Object</entry>
+  <entry key="offset">Offset</entry>
+  <entry key="problem">Problem</entry>
+  <entry key="queries_class">Queries class</entry>
+  <entry key="received_content_type">Received Content Type</entry>
+  <entry key="received_count">Received Count</entry>
+  <entry key="received_type">Received Type</entry>
+  <entry key="relation">Relation</entry>
+  <entry key="starting_count">Starting Count</entry>
+  <entry key="type">Type</entry>
+  <entry key="user_id">User ID</entry>
+  <entry key="version_range">Version Range</entry>
+
+</properties>

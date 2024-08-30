@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Schema xmlns="urn:com.io7m.azeno:schema:1"
+        Name="com.io7m.example"
+        Version="1">
+  <FieldBoolean Name="compressed"/>
+  <FieldUUID Name="u"/>
+  <FieldURI Name="u2"/>
+  <FieldTimestamp Name="t"/>
+  <FieldStringLocal Name="s"
+                    Language="eng"/>
+  <FieldStringUninterpreted Name="s2"/>
+  <FieldFloating Name="x"/>
+  <FieldFloating Name="y" MultiValued="false"/>
+</Schema>

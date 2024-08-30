@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="Azeno"
+        version="1.7">
+
+  <fieldType name="assetID"
+             class="solr.UUIDField"/>
+
+  <field name="azeno.id"
+         type="assetID"
+         indexed="true"
+         stored="true"
+         multiValued="false"/>
+
+  <uniqueKey>azeno.id</uniqueKey>
+
+</schema>

@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+  SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+  IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="com.io7m.azeno:configuration:1"
+        xmlns:ct="com.io7m.azeno:tls:1"
+        xmlns:c="com.io7m.azeno:configuration:1">
+
+  <import namespace="com.io7m.azeno:tls:1"/>
+
+  <annotation>
+    <documentation>
+      The schema for server configuration files.
+    </documentation>
+  </annotation>
+
+  <simpleType name="DatabaseKind">
+    <annotation>
+      <documentation>
+        The kind of the target database. Currently, only PostgreSQL is supported.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="POSTGRESQL">
+        <annotation>
+          <documentation>
+            The database is PostgreSQL.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <element name="Idstore">
+    <annotation>
+      <documentation>
+        Configuration for the idstore server that will be used for user identity information.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="BaseURI"
+                 type="anyURI"
+                 use="required">
+        <annotation>
+          <documentation>
+            The base URI of the idstore user API.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="PasswordResetURI"
+                 type="anyURI"
+                 use="required">
+        <annotation>
+          <documentation>
+            The password reset URI to which to redirect users who want to reset their password.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <simpleType name="OpenTelemetryProtocol">
+    <annotation>
+      <documentation>
+        The protocol used to deliver OpenTelemetry data.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="GRPC">
+        <annotation>
+          <documentation>
+            The data will be sent using gRPC.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="HTTP">
+        <annotation>
+          <documentation>
+            The data will be sent using HTTP(s).
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <element name="Logs">
+    <annotation>
+      <documentation>
+        Configuration information for OpenTelemetry logs.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Endpoint"
+                 use="required"
+                 type="anyURI">
+        <annotation>
+          <documentation>
+            The endpoint to which OTLP log data will be sent.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Protocol"
+                 use="required"
+                 type="c:OpenTelemetryProtocol">
+        <annotation>
+          <documentation>
+            The protocol used to send log data.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Metrics">
+    <annotation>
+      <documentation>
+        Configuration information for OpenTelemetry metrics.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Endpoint"
+                 use="required"
+                 type="anyURI">
+        <annotation>
+          <documentation>
+            The endpoint to which OTLP metrics data will be sent.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Protocol"
+                 use="required"
+                 type="c:OpenTelemetryProtocol">
+        <annotation>
+          <documentation>
+            The protocol used to send metrics data.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Traces">
+    <annotation>
+      <documentation>
+        Configuration information for OpenTelemetry traces.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Endpoint"
+                 use="required"
+                 type="anyURI">
+        <annotation>
+          <documentation>
+            The endpoint to which OTLP trace data will be sent.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Protocol"
+                 use="required"
+                 type="c:OpenTelemetryProtocol">
+        <annotation>
+          <documentation>
+            The protocol used to send trace data.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="OpenTelemetry">
+    <annotation>
+      <documentation>
+        Configuration information for OpenTelemetry.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence>
+        <element ref="c:Logs"
+                 minOccurs="0"
+                 maxOccurs="1"/>
+        <element ref="c:Metrics"
+                 minOccurs="0"
+                 maxOccurs="1"/>
+        <element ref="c:Traces"
+                 minOccurs="0"
+                 maxOccurs="1"/>
+      </sequence>
+
+      <attribute name="LogicalServiceName"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation>
+            The logical name of the service as it will appear in OpenTelemetry.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Database">
+    <annotation>
+      <documentation>
+        Configuration information for the database.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Kind"
+                 type="c:DatabaseKind"
+                 use="required"/>
+
+      <attribute name="OwnerRoleName"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation>
+            The name of the role that owns the database. This is used for the initial database setup, and for upgrades.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="OwnerRolePassword"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation>
+            The password of the role that owns the database.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="WorkerRolePassword"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation>
+            The password of the role used for normal database operation. This is an unprivileged role that does not have
+            the ability to perform DDL or other database-changing operations.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="ReaderRolePassword"
+                 use="optional"
+                 type="string">
+        <annotation>
+          <documentation>
+            The password of the role used for read-only database operation. If this attribute is not specified, the
+            read-only role is not allowed to log in.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Address"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation>
+            The address of the database.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Port"
+                 type="integer"
+                 use="required">
+        <annotation>
+          <documentation>
+            The port used to connect to the database.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Name"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation>
+            The name of the database.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Create"
+                 type="boolean"
+                 use="required">
+        <annotation>
+          <documentation>
+            If set to true, the database and tables will be created if they do not already exist.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Upgrade"
+                 type="boolean"
+                 use="required">
+        <annotation>
+          <documentation>
+            If set to true, the database and tables will be upgraded to the latest supported schema version.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Language"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation>
+            The language used for database search indexes (such as 'english'). See
+            https://www.postgresql.org/docs/current/locale.html.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <complexType name="HTTPService">
+    <sequence minOccurs="1"
+              maxOccurs="1">
+      <group ref="ct:TLSGroup"/>
+    </sequence>
+
+    <attribute name="ListenAddress"
+               type="string"
+               use="required">
+      <annotation>
+        <documentation>
+          The address upon which this HTTP service will listen.
+        </documentation>
+      </annotation>
+    </attribute>
+
+    <attribute name="ListenPort"
+               type="integer"
+               use="required">
+      <annotation>
+        <documentation>
+          The port upon which this HTTP service will listen.
+        </documentation>
+      </annotation>
+    </attribute>
+
+    <attribute name="ExternalAddress"
+               type="anyURI"
+               use="required">
+      <annotation>
+        <documentation>
+          The address by which this service is accessible to the outside world. The service will typically be configured
+          behind a reverse proxy to provide TLS.
+        </documentation>
+      </annotation>
+    </attribute>
+
+    <attribute name="SessionExpiration"
+               type="duration"
+               use="optional">
+      <annotation>
+        <documentation>
+          The expiration time for sessions.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <element name="AssetService"
+           type="c:HTTPService">
+    <annotation>
+      <documentation>
+        Configuration for the Digital asset API service.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="Limits">
+    <annotation>
+      <documentation>
+        Configuration for various limits.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="MaximumFileUploadSizeOctets"
+                 type="unsignedLong"
+                 use="required">
+        <annotation>
+          <documentation>
+            The maximum permitted size of uploaded files (in octets).
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="MaximumCommandSizeOctets"
+                 type="unsignedLong"
+                 use="required">
+        <annotation>
+          <documentation>
+            The maximum permitted size of ordinary commands (in octets).
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Maintenance">
+    <annotation>
+      <documentation>
+        Configuration for the server's periodic maintenance tasks.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="TLSReloadInterval"
+                     type="duration"
+                     use="optional">
+        <annotation>
+          <documentation>
+            The interval at which TLS contexts will be reloaded. If not
+            specified, TLS contexts will not be reloaded.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Configuration">
+    <annotation>
+      <documentation>
+        The top-level configuration element.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence>
+        <element ref="c:AssetService"/>
+        <element ref="c:Database"/>
+        <element ref="c:Idstore"/>
+        <element ref="c:Limits"/>
+        <element ref="c:Maintenance"/>
+        <element ref="c:OpenTelemetry"
+                 minOccurs="0"
+                 maxOccurs="1"/>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

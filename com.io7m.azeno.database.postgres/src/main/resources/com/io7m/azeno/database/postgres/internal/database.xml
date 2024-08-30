@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Schemas xmlns="urn:com.io7m.trasco.database.statements:1:0">
+
+  <Schema versionCurrent="0">
+    <Comment>
+      The azeno role is a least-privilege role that can perform only those operations required to run the system and
+      no others.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS azeno;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE azeno WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The azeno_none role is a no-privilege role that cannot perform any actions.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS azeno_none;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE azeno_none WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The azeno_read_only role is a read-only role that cannot write to anything.
+    </Comment>
+
+    <Statement><![CDATA[
+DROP ROLE IF EXISTS azeno_read_only;
+]]></Statement>
+    <Statement><![CDATA[
+CREATE ROLE azeno_read_only WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN;
+]]></Statement>
+
+    <Comment>
+      The schema version table stores the current version of the database schema. Implementations are expected to query
+      this table on connecting to the database in order to ensure that the calling code is compatible with the tables in
+      the database.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE schema_version (
+  version_lock            CHAR(1) NOT NULL DEFAULT 'X',
+  version_application_id  TEXT    NOT NULL,
+  version_number          BIGINT  NOT NULL,
+
+  CONSTRAINT check_lock_primary
+    PRIMARY KEY (version_lock),
+
+  CONSTRAINT check_lock_locked
+    CHECK (version_lock = 'X')
+)
+]]>
+    </Statement>
+  </Schema>
+
+  <Schema versionCurrent="1">
+    <Comment>
+      Some tables use the hstore type to store unstructured key/value maps.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE EXTENSION hstore;
+]]></Statement>
+
+    <Comment>
+      The database makes extensive use of Lanark dotted names. It's necessary to tokenize those names in order to use
+      them with full text searching. Essentially, anything that isn't a letter or a number is converted to a space. This
+      translated string can then be given to the various full-text search functions for indexing.
+    </Comment>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+
+CREATE FUNCTION tokenize_dotted_name(x text) RETURNS text
+  LANGUAGE SQL
+  IMMUTABLE
+  RETURNS NULL ON NULL INPUT
+    RETURN TRANSLATE (x, '-_.', '   ')
+
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Statement><![CDATA[
+-- [jooq ignore start]
+
+CREATE OR REPLACE FUNCTION text_array_to_text(TEXT[])
+  RETURNS TEXT AS
+$$
+  SELECT array_to_string($1, ' ');
+$$ LANGUAGE SQL IMMUTABLE;
+
+-- [jooq ignore stop]
+]]></Statement>
+
+    <Comment>
+      The users table stores the current set of users. The name field is neither authoritative, nor expected to be
+      unique, because the external identity server is the authoritative source for names.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE users (
+  id    UUID   NOT NULL PRIMARY KEY,
+  name  TEXT   NOT NULL,
+  roles TEXT[] NOT NULL
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON users TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON users TO azeno_read_only
+    </Statement>
+
+    <Comment>
+      The audit table stores a list of auditable events. Who did it? What did they do? When did they do it?
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE audit (
+  audit_id         BIGINT                   NOT NULL GENERATED ALWAYS AS IDENTITY,
+  audit_user_id    UUID                     NOT NULL,
+  audit_time       TIMESTAMP WITH TIME ZONE NOT NULL,
+  audit_type       TEXT                     NOT NULL,
+
+  -- [jooq ignore start]
+  audit_data       HSTORE                   NOT NULL,
+  -- [jooq ignore stop]
+
+  CONSTRAINT audit_primary_key
+    PRIMARY KEY (audit_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT ON audit TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON audit TO azeno_read_only
+    </Statement>
+  </Schema>
+
+  <Schema versionCurrent="2">
+    <Comment>
+      The stores table holds the list of available stores.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE stores (
+  store_id            UUID NOT NULL,
+  store_title         TEXT NOT NULL,
+  store_type          TEXT NOT NULL,
+
+  -- [jooq ignore start]
+  store_configuration HSTORE NOT NULL,
+  -- [jooq ignore stop]
+
+  CONSTRAINT stores_primary_key
+    PRIMARY KEY (store_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON stores TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON stores TO azeno_read_only
+    </Statement>
+
+    <Comment>
+      The schemas table stores the list of available schemas.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE schemas (
+  schema_id         BIGINT  GENERATED ALWAYS AS IDENTITY NOT NULL,
+  schema_name       TEXT    NOT NULL,
+  schema_version    INTEGER NOT NULL,
+  schema_data_type  TEXT    NOT NULL,
+  schema_data       TEXT    NOT NULL,
+
+  -- [jooq ignore start]
+  CONSTRAINT schemas_unique
+    UNIQUE (schema_name, schema_version),
+  -- [jooq ignore stop]
+
+  CONSTRAINT schemas_primary_key
+    PRIMARY KEY (schema_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON schemas TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON schemas TO azeno_read_only
+    </Statement>
+
+    <Comment>
+      The collections table stores the list of available collections.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE collections (
+  collection_id      UUID    NOT NULL,
+  collection_title   TEXT    NOT NULL,
+  collection_store   UUID    NOT NULL,
+  collection_schema  BIGINT  NOT NULL,
+
+  CONSTRAINT collection_store_exists
+    FOREIGN KEY (collection_store) REFERENCES stores (store_id),
+
+  CONSTRAINT collection_schema_exists
+    FOREIGN KEY (collection_schema) REFERENCES schemas (schema_id),
+
+  CONSTRAINT collections_primary_key
+    PRIMARY KEY (collection_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE ON collections TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON collections TO azeno_read_only
+    </Statement>
+
+    <Comment>
+      The collections_access table stores the access values granted to users.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TABLE collections_access (
+  access_collection_id UUID NOT NULL,
+  access_user_id       UUID NOT NULL,
+  access_read          BOOLEAN NOT NULL,
+  access_write         BOOLEAN NOT NULL,
+
+  CONSTRAINT collections_access_collection_exists
+    FOREIGN KEY (access_collection_id)
+      REFERENCES collections (collection_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT collections_access_user_exists
+    FOREIGN KEY (access_user_id)
+      REFERENCES users (id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT collections_access_primary_key
+    PRIMARY KEY (access_collection_id, access_user_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON collections_access TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON collections_access TO azeno_read_only
+    </Statement>
+
+    <Comment>
+      The assets table stores the list of available assets.
+    </Comment>
+
+    <Statement><![CDATA[
+CREATE TYPE asset_state_t AS ENUM (
+  'STATE_UPLOADING',
+  'STATE_ACTIVE',
+  'STATE_DELETED'
+)
+]]></Statement>
+
+    <Statement><![CDATA[
+CREATE TABLE assets (
+  asset_id             UUID           NOT NULL,
+  asset_collection     UUID           NOT NULL,
+  asset_hash_algorithm TEXT           NOT NULL,
+  asset_hash_value     TEXT           NOT NULL,
+  asset_state          asset_state_t  NOT NULL,
+  asset_data_type      TEXT           NOT NULL,
+  asset_data           TEXT           NOT NULL,
+
+  CONSTRAINT assets_collection_exists
+    FOREIGN KEY (asset_collection) REFERENCES collections (collection_id),
+
+  CONSTRAINT assets_primary_key
+    PRIMARY KEY (asset_id)
+)
+]]></Statement>
+
+    <Statement>
+      GRANT SELECT, INSERT, UPDATE, DELETE ON assets TO azeno
+    </Statement>
+    <Statement>
+      GRANT SELECT ON assets TO azeno_read_only
+    </Statement>
+  </Schema>
+
+</Schemas>

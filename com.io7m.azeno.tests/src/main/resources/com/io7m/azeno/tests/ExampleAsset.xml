@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Assets xmlns="urn:com.io7m.azeno:asset:1">
+  <Asset ID="654dbc83-84b4-43d7-b5e7-c7c54085d3a6"
+         Collection="89b15f8e-e93e-428f-82b3-d6c154eff044"
+         HashAlgorithm="SHA-256"
+         HashValue="5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03">
+    <ValueBoolean Name="compressed"
+                  Value="true"/>
+    <ValueFloating Name="floaty"
+                   Value="23.0"/>
+    <ValueInteger Name="integral"
+                  Value="230019039889123"/>
+    <ValueString Name="local">Some text.</ValueString>
+    <ValueTimestamp Name="time"
+                    Value="2003-01-01T00:00:00+00:00"/>
+    <ValueURI Name="site"
+              Value="https://www.io7m.com"/>
+    <ValueUUID Name="uid"
+               Value="8ac0c45d-d694-47f7-aa9a-6888d0c5dba6"/>
+    <ValueUUID Name="uid"
+               Value="8ac0c45d-d694-47f7-aa9a-6888d0c5dba6"/>
+  </Asset>
+  <Asset ID="a63d11ac-defc-42f1-850d-919f08a1aa67"
+         Collection="89b15f8e-e93e-428f-82b3-d6c154eff044"
+         HashAlgorithm="SHA-256"
+         HashValue="5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03">
+    <ValueBoolean Name="compressed"
+                  Value="true"/>
+    <ValueFloating Name="floaty"
+                   Value="23.0"/>
+    <ValueInteger Name="integral"
+                  Value="230019039889123"/>
+    <ValueString Name="local">Some text.</ValueString>
+    <ValueTimestamp Name="time"
+                    Value="2003-01-01T00:00:00+00:00"/>
+    <ValueURI Name="site"
+              Value="https://www.io7m.com"/>
+    <ValueUUID Name="uid"
+               Value="8ac0c45d-d694-47f7-aa9a-6888d0c5dba6"/>
+    <ValueUUID Name="uid"
+               Value="8ac0c45d-d694-47f7-aa9a-6888d0c5dba6"/>
+  </Asset>
+</Assets>
